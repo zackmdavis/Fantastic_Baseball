@@ -66,6 +66,7 @@ impl<'a> PlayerNature for Pitcher<'a> {
 struct Team<'a> {
     city: &'a str,
     name: &'a str,
+
     pitcher: Pitcher<'a>,
     catcher: PositionPlayer<'a>,
     first_baseperson: PositionPlayer<'a>,  // gender-neutral language ⚤
@@ -75,6 +76,30 @@ struct Team<'a> {
     leftfielder: PositionPlayer<'a>,
     centerfielder: PositionPlayer<'a>,
     rightfielder: PositionPlayer<'a>,
+
+    lineup: [u8; 8], // make this length 9 when we figure out how to
+                     // solve our generic player problem
+}
+
+// XXX "error: mismatched types: [..] (expected type parameter, found
+// struct `PositionPlayer`)"
+//
+// uhhh, are we not allowed to return generic types?!
+// fn position_number_to_player<P: PlayerNature>(team: Team,
+//                                               position_number: u8) -> P {
+fn position_number_to_player(team: Team, position_number: u8) -> PositionPlayer {
+    match position_number {
+        // 1 =>  team.pitcher,
+        2 =>  team.catcher,
+        3 =>  team.first_baseperson,
+        4 =>  team.second_baseperson,
+        5 =>  team.third_baseperson,
+        6 =>  team.shortstop,
+        7 =>  team.leftfielder,
+        8 =>  team.centerfielder,
+        9 =>  team.rightfielder,
+        _ => panic!("fake position number")
+    }
 }
 
 struct GameState<'a> {
@@ -84,6 +109,9 @@ struct GameState<'a> {
 
     home_score: u8,
     away_score: u8,
+
+    home_to_bat: u8,
+    away_to_bat: u8,
 
     // XXX TODO FIXME: because the designated hitter rule is contrary
     // to the operation of the moral law, both Pitchers and
@@ -146,7 +174,9 @@ fn main() {
             uniform_number: 7, nonlast_name: "Hunter", last_name: "Pence",
             batting_average: 0.277, on_base_percentage: 0.332,
             slugging_percentage: 0.445
-        }
+        },
+
+        lineup: [1, 2, 3, 4, 5, 6, 7, 8]
     };
 
     let home = Team {
@@ -196,12 +226,17 @@ fn main() {
             batting_average: 0.414, on_base_percentage: 0.500,
             slugging_percentage: 0.800
         },
+
+        lineup: [1, 2, 3, 4, 5, 6, 7, 8]
     };
 
     let mut game_state = GameState {
         inning: 0,
         home_team: home,
         away_team: away,
+
+        home_to_bat: 1,
+        away_to_bat: 1,
 
         home_score: 0,
         away_score: 0,
