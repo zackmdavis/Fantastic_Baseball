@@ -1,3 +1,5 @@
+extern crate rand;
+
 struct PositionPlayer<'a> {
     uniform_number: u8,
     nonlast_name: &'a str,
@@ -17,10 +19,49 @@ struct Pitcher<'a> {
     batting_average: f64,
 }
 
-// TODO: common player trait?
-// trait PlayerNature {}
-// impl PlayerNature for PositionPlayer {}
-// impl PlayerNature for Pitcher {}
+enum AtBatOutcome {
+    FieldOut,
+    KSwinging,
+    KLooking,
+    BaseOnBalls,
+    HitByPitch,
+    Single,
+    Double,
+    Triple,
+    HomeRun,
+    InsideHomeRun,
+}
+
+trait PlayerNature {
+    fn at_bat(&self, pitcher: &Pitcher) -> AtBatOutcome;
+}
+
+impl<'a> PlayerNature for PositionPlayer<'a> {
+    // XXX CODE DUPLICATION: we'd prefer to just define this function
+    // once in the `trait PlayerNature` block, but I'm not sure how to
+    // assure the compiler that both `Pitcher` and `PositionPlayer` have
+    // a `batting_average` ("attempted access of field `batting_average`
+    // on type `&Self`, but no field with that name was found")
+    fn at_bat(&self, pitcher: &Pitcher) -> AtBatOutcome {
+        if self.batting_average < rand::random() {
+            // (These static outcomes are clearly a placeholder for
+            // TODO more sophisticated weighted outcome generation to be
+            // implemented later.)
+            AtBatOutcome::Single
+        } else {
+            AtBatOutcome::FieldOut
+        }
+    }
+}
+impl<'a> PlayerNature for Pitcher<'a> {
+    fn at_bat(&self, pitcher: &Pitcher) -> AtBatOutcome {
+        if self.batting_average < rand::random() {
+            AtBatOutcome::Single
+        } else {
+            AtBatOutcome::FieldOut
+        }
+    }
+}
 
 struct Team<'a> {
     city: &'a str,
