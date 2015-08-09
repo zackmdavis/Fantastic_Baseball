@@ -57,13 +57,8 @@ struct Team<'a> {
     lineup: [u8; 9]
 }
 
-// XXX THIS DOES NOT COMPILE
-//
-// src/main.rs:61:73: 61:73 help: this function's return type contains a
-// borrowed value, but the signature does not say whether it is borrowed
-// from one of `team`'s 2 elided lifetimes or `position_number`
 fn position_number_to_player<'a>(team: &'a Team<'a>,
-                                 position_number: &'a u8) -> &Player<'a> {
+                                 position_number: &'a u8) -> &'a Player<'a> {
     match *position_number {
         1 =>  &team.pitcher,
         2 =>  &team.catcher,
@@ -225,8 +220,8 @@ fn main() {
         home_team: home,
         away_team: away,
 
-        home_to_bat: 1,
-        away_to_bat: 1,
+        home_to_bat: 0,
+        away_to_bat: 0,
 
         home_score: 0,
         away_score: 0,
@@ -256,6 +251,8 @@ fn main() {
                 game_state.outs += 1;
             },
             _ => panic!("not yet implemented")
-        }
+        };
+        game_state.away_to_bat += 1;
+        game_state.away_to_bat %= 9;
     }
 }
