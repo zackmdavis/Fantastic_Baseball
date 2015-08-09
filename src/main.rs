@@ -96,6 +96,29 @@ struct GameState<'a> {
     outs: u8,
 }
 
+impl<'a> GameState<'a> {
+    fn display_outs(&self) {
+        println!("OUTS {}", self.outs);
+    }
+
+    fn display_diamond(&self) {
+        let mut base_indicators = [' ', ' ', ' '];
+        for (i, base) in [&self.first_base,
+                          &self.second_base,
+                          &self.third_base].iter().enumerate() {
+            if base.is_some() {
+                base_indicators[i] = '0';
+            }
+        }
+        println!(
+"  {}
+ / \\
+{}   {}
+ \\ /\n\n",
+            base_indicators[1], base_indicators[2], base_indicators[0])
+    }
+}
+
 
 fn main() {
     let away = Team {
@@ -279,5 +302,7 @@ fn main() {
         };
         game_state.away_to_bat += 1;
         game_state.away_to_bat %= 9;
+        game_state.display_outs();
+        game_state.display_diamond();
     }
 }
