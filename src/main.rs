@@ -1,6 +1,7 @@
 extern crate rand;
 
 use std::mem;
+use std::thread;
 
 #[derive(Copy,Clone)]
 struct Player<'a> {
@@ -13,6 +14,7 @@ struct Player<'a> {
     slugging_percentage: f64,
 }
 
+#[derive(Copy,Clone)]
 enum AtBatOutcome {
     FieldOut,
     KSwinging,
@@ -38,7 +40,10 @@ impl<'a> PlayerNature for Player<'a> {
             // implemented later.)
             AtBatOutcome::Single
         } else {
-            AtBatOutcome::FieldOut
+            let outs = [AtBatOutcome::FieldOut,
+                        AtBatOutcome::KSwinging,
+                        AtBatOutcome::KLooking];
+            outs[(3f64 * rand::random::<f64>()) as usize]
         }
     }
 }
@@ -294,7 +299,17 @@ fn main() {
 
             },
             AtBatOutcome::FieldOut => {
-                println!("{} {} is out",
+                println!("{} {} is thrown or flies out!",
+                         batter_up.nonlast_name, batter_up.last_name);
+                game_state.outs += 1;
+            },
+            AtBatOutcome::KLooking => {
+                println!("{} {} strikes out looking!!",
+                         batter_up.nonlast_name, batter_up.last_name);
+                game_state.outs += 1;
+            },
+            AtBatOutcome::KSwinging => {
+                println!("{} {} stikes out swinging!",
                          batter_up.nonlast_name, batter_up.last_name);
                 game_state.outs += 1;
             },
@@ -304,5 +319,6 @@ fn main() {
         game_state.away_to_bat %= 9;
         game_state.display_outs();
         game_state.display_diamond();
+        thread::sleep_ms(500);
     }
 }
