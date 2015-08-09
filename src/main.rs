@@ -1,5 +1,8 @@
 extern crate rand;
 
+use std::mem;
+
+#[derive(Copy,Clone)]
 struct Player<'a> {
     uniform_number: u8,
     nonlast_name: &'a str,
@@ -244,6 +247,28 @@ fn main() {
             AtBatOutcome::Single => {
                 println!("let's pretend that {} {} hit a single!",
                          batter_up.nonlast_name, batter_up.last_name);
+                // any runner on third scores
+                if game_state.third_base.is_some() {
+                    let scoring_player = game_state.third_base.take().unwrap();
+                    game_state.away_score += 1;
+                    println!("{} {} scores!",
+                             scoring_player.nonlast_name,
+                             scoring_player.last_name);
+                }
+                // any runner on second advances to third
+                if game_state.second_base.is_some() {
+                    mem::replace(&mut game_state.third_base,
+                                 Some(game_state.second_base.take().unwrap()));
+                }
+                // any runner on first base advances to second
+                if game_state.first_base.is_some() {
+                    mem::replace(&mut game_state.second_base,
+                                 Some(game_state.first_base.take().unwrap()));
+                }
+                // our batter actually gets to first
+                mem::replace(&mut game_state.first_base,
+                             Some(*batter_up));
+
             },
             AtBatOutcome::FieldOut => {
                 println!("{} {} is out",
